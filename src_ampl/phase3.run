@@ -1,0 +1,48 @@
+reset;
+
+suffix intvarstrategy IN;
+
+param FEASTOL := 1e-4;
+param OPTTOL  := 1e-4;
+param FEASTOLABS := 1e-0;
+param OPTTOLABS  := 1e-0;
+param SCALE default 0;
+
+param TIME_BEGIN;
+let TIME_BEGIN := time();
+set FIXED_VARIABLES dimen 1;
+param FIXING{FIXED_VARIABLES} symbolic;
+
+
+model minlp.mod;
+
+data;
+
+param: KEYS: LEFT RIGHT  := include "minlp_instance.dat";
+param: FIXED_VARIABLES : FIXING := include "fixing.dat";
+
+model;
+
+option solver knitroampl;
+
+###
+# initialization
+###
+	let{(VAR_TYPE, REAL, name, NONE) in KEYS} x[name] := 1.0;
+	let{varname in FIXED_VARIABLES} y[varname] := FIXING[varname];
+	fix{varname in FIXED_VARIABLES} y[varname];
+
+
+	option knitro_options ( 'outlev=3 maxit=600 scale='&SCALE&' feastol='&FEASTOL&' opttol='&OPTTOL&' feastolabs='&FEASTOLABS&' opttolabs='&OPTTOLABS&' bar_initpt=2 presolve=0 honorbnds=0');
+	solve;
+
+	option knitro_options ('outlev=3 maxit=600 scale=0 feastol=1e-06 opttol=0.001 feastolabs=1 opttolabs=1 bar_initpt=2 presolve=0 honorbnds=0 bar_initmu=1e-6 bar_slackboundpush=1e-6 bar_murule=1 bar_directinterval=0');
+	#solve;
+
+	display {varname in BINARY_VARIABLES} y[varname];
+	close knitro_solution.csv;
+	for {varname in BINARY_VARIABLES} {
+		printf "%s;%f\n", varname, y[varname] > knitro_solution.csv;}
+	for {i in REAL_VARIABLES} {
+	printf "%s;%f\n", i, x[i] >> knitro_solution.csv;}
+	close knitro_solution.csv;

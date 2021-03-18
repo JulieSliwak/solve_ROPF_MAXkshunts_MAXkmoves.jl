@@ -1,0 +1,110 @@
+reset;
+
+suffix intvarstrategy IN;
+
+
+param FEASTOL := 1e-4;
+param OPTTOL  := 1e-3;
+param FEASTOLABS := 1e-0;
+param OPTTOLABS  := 1e-0;
+param SCALE default 0;
+
+
+
+param TIME_BEGIN;
+let TIME_BEGIN := time();
+set FIXED_VARIABLES dimen 1;
+param FIXING{FIXED_VARIABLES} symbolic;
+param k integer;
+set SHUNT_VARIABLES dimen 1;
+param INIT_PT{SHUNT_VARIABLES} symbolic;
+
+
+model minlp_maxkmoves.mod;
+
+data;
+
+param: KEYS: LEFT RIGHT  := include "minlp_instance.dat";
+param: FIXED_VARIABLES : FIXING := include "fixing.dat";
+param k := include "k.dat";
+param: SHUNT_VARIABLES: INIT_PT := include "init_pt.dat";
+
+
+model;
+
+
+option solver knitroampl;
+option knitro_options ( 'outlev=3 maxit=600 scale='&SCALE&' feastol='&FEASTOL&' opttol='&OPTTOL&' feastolabs='&FEASTOLABS&' opttolabs='&OPTTOLABS&' bar_initpt=2 presolve=0 honorbnds=0');
+
+
+###
+# initialization
+###
+	let{(VAR_TYPE, REAL, name, NONE) in KEYS} x[name] := 1.1;
+	let{(VAR_TYPE, BOOL, name, NONE) in KEYS} y[name] := 0.0;
+
+	let{varname in FIXED_VARIABLES} y[varname] := FIXING[varname];
+	fix{varname in FIXED_VARIABLES} y[varname];
+
+option presolve 0;
+
+
+
+#define KTR_PARAM_MIP_INTVAR_STRATEGY 2030
+# define KTR_MIP_INTVAR_STRATEGY_NONE 0
+# define KTR_MIP_INTVAR_STRATEGY_RELAX 1
+# define KTR_MIP_INTVAR_STRATEGY_MPEC 2
+
+	# first phase relaxation binary constraints
+	let{varname in BINARY_VARIABLES} y[varname].intvarstrategy := 1;
+	option knitro_options;
+	solve;
+
+	display sum{var in BINARY_VARIABLES} y[var];
+
+	option presolve 0;
+	option knitro_options ('outlev=3 maxit=600 scale='&SCALE&' feastol='&FEASTOL&' opttol='&OPTTOL&' feastolabs='&FEASTOLABS&' opttolabs='&OPTTOLABS&' bar_initpt=2 presolve=0 honorbnds=0');
+
+	printf"Binary variables max dist to 1, phase 1\n";
+	display max{varname in BINARY_VARIABLES}min(
+		y[varname],
+		1-y[varname]
+		);
+
+	#if solve_result_num < -200 then exit
+
+
+	# second phase reformulating binary constraints into MPEC and starting from the previous KKT solution
+	let{varname in BINARY_VARIABLES} y[varname].intvarstrategy := 2;
+
+
+	option presolve 0;
+
+	option knitro_options;
+	solve;
+
+
+	printf"Binary variables max dist to 1, phase 2\n";
+	display max{varname in BINARY_VARIABLES}min(
+		y[varname],
+		1-y[varname]
+		);
+
+
+	let{varname in BINARY_VARIABLES} y[varname] := if y[varname] > 0.5 then 1 else 0;
+
+
+	fix{varname in BINARY_VARIABLES} y[varname];
+	option knitro_options ('outlev=3 maxit=600 scale=0 feastol=1e-6 opttol=0.001 feastolabs=1 opttolabs=1 bar_initpt=2 presolve=0 honorbnds=0 bar_initmu=1e-6 bar_slackboundpush=1e-6 bar_murule=1 bar_directinterval=0');
+	option knitro_options;
+	solve;
+
+
+	display {varname in BINARY_VARIABLES} y[varname];
+
+	close knitro_solution.csv;
+	for {varname in BINARY_VARIABLES} {
+		printf "%s;%f\n", varname, y[varname] > knitro_solution.csv;}
+	for {i in REAL_VARIABLES} {
+	printf "%s;%f\n", i, x[i] >> knitro_solution.csv;}
+	close knitro_solution.csv;
