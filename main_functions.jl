@@ -24,15 +24,15 @@ include("solve_minlp.jl")
 include("B&B_fixingsome1and0.jl")
 
 
-function optvalue_bounds(ROPF::ROPF_infos, typeofconstraint::AbstractConstraint)
-    LB, status = solve_SDP(ROPF, typeofconstraint)
-    UB = solve_minlp(ROPF, [], Dict{String,Float64}(), typeofconstraint)
+function optvalue_bounds(ROPF::ROPF_infos, nb_max_shunts, typeofconstraint::AbstractConstraint)
+    LB, status = solve_SDP(ROPF, typeofconstraint, nb_max_shunts)
+    UB = solve_minlp(ROPF, [], Dict{String,Float64}(), nb_max_shunts, typeofconstraint)
     return UB, LB
 end
 
 
-function solve2(ROPF::ROPF_infos, max_time::Float64, BB_parameters::BB_infos, typeofconstraint::AbstractConstraint)
+function solve2(ROPF::ROPF_infos, max_time::Float64, BB_parameters::BB_infos, nb_max_shunts, typeofconstraint::AbstractConstraint)
     LB, status = solve_SDP(ROPF, typeofconstraint)
-    (UB, nb_nodes, open_nodes) = BandB_maxk_fixingsome1and0(ROPF, BB_parameters, max_time, typeofconstraint)
+    (UB, nb_nodes, open_nodes) = BandB_maxk_fixingsome1and0(ROPF, BB_parameters, max_time, nb_max_shunts, typeofconstraint)
     return UB, LB
 end

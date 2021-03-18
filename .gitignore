@@ -24,3 +24,5 @@ docs/site/
 Manifest.toml
 /Mosek_runs/*
 /Mosek_solutions/*
+/knitro_runs/*
+/knitro_solution.csv

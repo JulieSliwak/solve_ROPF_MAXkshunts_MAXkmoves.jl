@@ -13,7 +13,10 @@ output_instance_path,
 output_decomposition_path)
 
 
+typeofconstraint = NoConstraint
+typeofconstraint = MAXkshuntsConstraint
 typeofconstraint = MAXkmovesConstraint
 nb_max_moves_or_shunts = 4
 
-solve_SDP(ROPF, typeofconstraint, nb_max_moves_or_shunts)
+# solve_SDP(ROPF, typeofconstraint, nb_max_moves_or_shunts)
+UB = solve_minlp(ROPF, [], Dict{String,Float64}(), nb_max_moves_or_shunts, typeofconstraint)

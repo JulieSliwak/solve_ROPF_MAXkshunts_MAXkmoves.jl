@@ -915,7 +915,13 @@ function solve_SDP(ROPF, typeofconstraint, nb_max_moves)
     originalSTDOUT = stdout
     outpath = joinpath("Mosek_runs")
     isdir(outpath) || mkpath(outpath)
-    outlog = open(joinpath(outpath,"$(INSTANCE_NAME)_$(FORMULATION).log"), "w")
+    if typeofconstraint == NoConstraint
+        outlog = open(joinpath(outpath,"$(INSTANCE_NAME)_$(FORMULATION).log"), "w")
+    elseif typeofconstraint == MAXkmovesConstraint
+        outlog = open(joinpath(outpath,"MAX$(nb_max_moves)moves_$(INSTANCE_NAME)_$(FORMULATION).log"), "w")
+    elseif typeofconstraint == MAXkshuntsConstraint
+        outlog = open(joinpath(outpath,"MAX$(nb_max_moves)shunts_$(INSTANCE_NAME)_$(FORMULATION).log"), "w")
+    end    
     redirect_stdout(outlog)
     instance_dat_file_path = joinpath(output_instance_path, "$(INSTANCE_NAME).dat")
     solution_file = "$(INSTANCE_NAME).dat"
