@@ -27,6 +27,9 @@ function solve_minlp(ROPF, fixing, index_var, nb_max_shunts, typeofconstraint::T
         end
     end
     close(f)
+    if length(fixing) == 0
+        all_fixing = false
+    end
 
     if all_fixing
         open("phase3.run", "w") do f
@@ -121,6 +124,9 @@ function solve_minlp(ROPF, fixing, index_var, nb_max_shunts, typeofconstraint::T
         end
     end
     close(f)
+    if length(fixing) == 0
+        all_fixing = false
+    end
 
     if all_fixing
         open("phase3_maxk.run", "w") do f
@@ -191,6 +197,9 @@ function solve_minlp(ROPF, fixing, index_var, nb_max_shunts, typeofconstraint::T
         end
     end
     close(f)
+    if length(fixing) == 0
+        all_fixing = false
+    end
 
     if all_fixing
         open("phase3_maxkmoves.run", "w") do f

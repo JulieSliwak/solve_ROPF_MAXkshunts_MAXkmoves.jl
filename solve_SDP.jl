@@ -438,7 +438,7 @@ end
 
 
 function construct_SDP(typeofconstraint::T, instance, blocks_dict, CLIQUE_TREE, SDP_var_list, Bin_var_list,
-   dict_quad_ctr, dict_bounds_ctr, dict_constants_ctr, dict_Bin_ctr, dict_MONO, dict_variables_to_fix, nb_max_shunts, solution_file) where T <: Type{MAXkmovesConstraint}
+   dict_quad_ctr, dict_bounds_ctr, dict_constants_ctr, dict_Bin_ctr, dict_MONO, dict_variables_to_fix, nb_max_moves, solution_file) where T <: Type{MAXkmovesConstraint}
 
     NB_BLOCKS = length(blocks_dict)
     #initialize
@@ -921,7 +921,7 @@ function solve_SDP(ROPF, typeofconstraint, nb_max_moves)
         outlog = open(joinpath(outpath,"MAX$(nb_max_moves)moves_$(INSTANCE_NAME)_$(FORMULATION).log"), "w")
     elseif typeofconstraint == MAXkshuntsConstraint
         outlog = open(joinpath(outpath,"MAX$(nb_max_moves)shunts_$(INSTANCE_NAME)_$(FORMULATION).log"), "w")
-    end    
+    end
     redirect_stdout(outlog)
     instance_dat_file_path = joinpath(output_instance_path, "$(INSTANCE_NAME).dat")
     solution_file = "$(INSTANCE_NAME).dat"
