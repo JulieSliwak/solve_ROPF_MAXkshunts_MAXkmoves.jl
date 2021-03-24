@@ -26,3 +26,4 @@ Manifest.toml
 /Mosek_solutions/*
 /knitro_runs/*
 /knitro_solution.csv
+/BandB_runs/*

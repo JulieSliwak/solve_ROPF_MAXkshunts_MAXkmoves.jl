@@ -415,8 +415,8 @@ function construct_SDP(typeofconstraint::T, instance, blocks_dict, CLIQUE_TREE, 
 
     if solution_file != ""
             X_Re, X_Im = construct_approximate_solution(mat_var, blocks_dict, SDP_var_list)
-            isdir("Mosek_solutions") || mkpath("Mosek_solutions")
-              f = open(joinpath("Mosek_solutions", solution_file), "w")
+            isdir("Mosek_solutions_maxk") || mkpath("Mosek_solutions_maxk")
+              f = open(joinpath("Mosek_solutions_maxk", solution_file), "w")
               write(f,"#Variable    Value \n")
               for (varname, tuple) in uvar
                   ξ = tuple[1]
@@ -654,8 +654,8 @@ function construct_SDP(typeofconstraint::T, instance, blocks_dict, CLIQUE_TREE, 
 
     if solution_file != ""
             X_Re, X_Im = construct_approximate_solution(mat_var, blocks_dict, SDP_var_list)
-            isdir("Mosek_solutions") || mkpath("Mosek_solutions")
-              f = open(joinpath("Mosek_solutions", solution_file), "w")
+            isdir("Mosek_solutions_max$(nb_max_moves)moves") || mkpath("Mosek_solutions_max$(nb_max_moves)moves")
+              f = open(joinpath("Mosek_solutions_max$(nb_max_moves)moves", solution_file), "w")
               write(f,"#Variable    Value \n")
               for (varname, tuple) in uvar
                   ξ = tuple[1]
@@ -925,6 +925,9 @@ function solve_SDP(ROPF, typeofconstraint, nb_max_moves)
     redirect_stdout(outlog)
     instance_dat_file_path = joinpath(output_instance_path, "$(INSTANCE_NAME).dat")
     solution_file = "$(INSTANCE_NAME).dat"
+    if typeofconstraint == MAXkshuntsConstraint && nb_max_moves != 4
+        solution_file = "max$(nb_max_moves)_$(INSTANCE_NAME).dat"
+    end    
     SDP_var_list, Bin_var_list, dict_quad_ctr, dict_bounds_ctr, dict_constants_ctr, dict_Bin_ctr, dict_MONO = read_dat_file(instance_dat_file_path)
     cliques_dict, CLIQUE_TREE = read_blocks(output_decomposition_path, FORMULATION, INSTANCE_NAME)
      obj, statut = construct_SDP(typeofconstraint, INSTANCE_NAME, cliques_dict, CLIQUE_TREE, SDP_var_list, Bin_var_list,

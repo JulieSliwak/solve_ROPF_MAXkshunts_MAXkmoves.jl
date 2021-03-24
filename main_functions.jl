@@ -10,14 +10,14 @@ struct BB_infos
     search_strategy::String
     branch_strategy::String
     seuil_u::Float64
-    seui_l::Float64
+    seuil_l::Float64
 end
 
-abstract type AbstractConstraint end
+abstract type AbstractROPFConstraint end
 
-abstract type NoConstraint <: AbstractConstraint end
-abstract type MAXkshuntsConstraint <:AbstractConstraint end
-abstract type MAXkmovesConstraint <: AbstractConstraint end
+abstract type NoConstraint <: AbstractROPFConstraint end
+abstract type MAXkshuntsConstraint <:AbstractROPFConstraint end
+abstract type MAXkmovesConstraint <: AbstractROPFConstraint end
 
 include("solve_SDP.jl")
 include("solve_minlp.jl")
@@ -31,8 +31,8 @@ function optvalue_bounds(ROPF::ROPF_infos, nb_max_shunts, typeofconstraint)
 end
 
 
-function solve_BandB(ROPF::ROPF_infos, max_time::Float64, BB_parameters::BB_infos, nb_max_shunts, typeofconstraint)
-    LB, status = solve_SDP(ROPF, typeofconstraint)
-    (UB, nb_nodes, open_nodes) = BandB_maxk_fixingsome1and0(ROPF, BB_parameters, max_time, nb_max_shunts, typeofconstraint)
+function solve_BandB(ROPF::ROPF_infos, max_time::Int64, BB_parameters::BB_infos, nb_max_shunts, typeofconstraint)
+    LB, status = solve_SDP(ROPF, typeofconstraint, nb_max_shunts)
+    (UB, nb_nodes, open_nodes) = BandB_fixingsome1and0(ROPF, BB_parameters, max_time, nb_max_shunts, typeofconstraint)
     return UB, LB
 end

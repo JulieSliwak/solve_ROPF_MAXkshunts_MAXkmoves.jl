@@ -41,7 +41,7 @@ option knitro_options ( 'outlev=3 maxit=600 scale='&SCALE&' feastol='&FEASTOL&' 
 	fix{varname in FIXED_VARIABLES} y[varname];
 
 
-ption presolve 0;
+option presolve 0;
 
 
 

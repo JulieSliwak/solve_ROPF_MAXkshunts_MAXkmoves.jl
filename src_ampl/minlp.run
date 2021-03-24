@@ -97,3 +97,10 @@ option presolve 0;
 	solve;
 
 	display {varname in BINARY_VARIABLES} y[varname];
+
+	close knitro_solution.csv;
+	for {varname in BINARY_VARIABLES} {
+		printf "%s;%f\n", varname, y[varname] > knitro_solution.csv;}
+	for {i in REAL_VARIABLES} {
+	printf "%s;%f\n", i, x[i] >> knitro_solution.csv;}
+	close knitro_solution.csv;
