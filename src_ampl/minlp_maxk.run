@@ -57,12 +57,6 @@ option presolve 0;
 
 	display sum{var in BINARY_VARIABLES} y[var];
 
-if scale_from_phase1 == 1 then {
-		let{i in 1.._ncons} _con[i].cscalefactor := if abs(_con[i])>1e-5 then 1/abs(_con[i]) else 1;
-		#let{i in 1.._nvars} _var[i].xscalefactor := if abs(_var[i])>1e-5 then abs(_var[i]) else 1;
-
-		let{(VAR_TYPE, REAL, name, NONE) in KEYS} x[name].xscalefactor := if abs(x[name])>1e-5 then abs(x[name]) else 1;
-	}
 
 
 	#printf{i in 1.._ncons: _con[i].slack / max(1, abs(_con[i].body))<-1e-6}"violation on %50s : %10.6E, %10.6E\n", _conname [i], _con[i].slack, _con[i].body;
